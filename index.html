@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Native feeling menu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<nav>
+    <div draggable="true" id="drag">
+        a
+    </div>
+</nav>
+<style>
+    #drag {
+        background-color: red;
+        width: 200px;
+        height: 400px;
+        position: absolute;
+        left: -200px;
+    }
+
+    #drag:not(.dragging) {
+        transition-property: left;
+        transition-duration: 0.2s;
+        -webkit-transition-property: left; /* Safari */
+        -webkit-transition-duration: 0.2s; /* Safari */
+    }
+</style>
+<script>
+  const drag = document.getElementById('drag')
+
+  let lastX
+
+  document.addEventListener(
+    'touchstart',
+    function (event) {
+      const open = drag.classList.contains('open')
+
+      const x = event.touches[0].clientX
+      if (x < 10 && !open) {
+        drag.classList.add('dragging')
+
+        const touch = event.touches[0]
+
+        const left = touch.clientX - 200
+        drag.setAttribute('style', `left: ${left}px`)
+
+        lastX = x
+      }
+
+      if (open && x < 200) {
+        drag.classList.add('dragging')
+
+        lastX = x
+      }
+    }
+  )
+  document.addEventListener(
+    'touchmove',
+    function (event) {
+      const x = event.touches[0].clientX
+
+      if (drag.classList.contains('dragging') && x < 200) {
+        if (drag.classList.contains('open')) {
+          const currentLeft = parseInt(drag.style.left.replace('px', ''))
+
+          const left = currentLeft - (lastX - x)
+
+          drag.setAttribute('style', `left: ${left}px`)
+        } else {
+          const left = x - 200
+
+          drag.setAttribute('style', `left: ${left}px`)
+        }
+
+        lastX = x
+      }
+    }
+  )
+
+  document.addEventListener(
+    'touchend',
+    function (event) {
+      if (!drag.classList.contains('dragging')) {
+        return
+      }
+
+      const x = event.changedTouches[0].clientX
+
+      const open = drag.classList.contains('open')
+
+      function closeMenu () {
+        drag.setAttribute('style', `left: -200px`)
+        drag.classList.remove('open')
+      }
+
+      function openMenu () {
+        drag.setAttribute('style', `left: 0px`)
+        drag.classList.add('open')
+      }
+
+      if (!open && x > 50) {
+        openMenu()
+      } else if (open && x > 100) {
+        openMenu()
+      } else {
+        closeMenu()
+      }
+
+      drag.classList.remove('dragging')
+    }
+  )
+</script>
+</body>
+</html>
